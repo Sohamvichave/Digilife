@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gaming Products with Cart</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #6A1B9A;
+            margin-bottom: 30px;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .product-list {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            width: 70%;
+        }
+        .product {
+            width: 30%;
+            background-color: white;
+            padding: 20px;
+            margin: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            text-align: center;
+        }
+        .product:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(106, 27, 154, 0.5);
+        }
+        .product img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        .product h3 {
+            color: #6A1B9A;
+            margin-bottom: 10px;
+        }
+        .product p {
+            color: #555;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        .product button {
+            background-color: #9C27B0;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+        }
+        .product button:hover {
+            background-color: #6A1B9A;
+        }
+        /* Cart Section */
+        .cart-container {
+            width: 25%;
+            position: relative;
+        }
+        .cart-icon {
+            cursor: pointer;
+            padding: 10px;
+            border-radius: 50%;
+            background-color: #9C27B0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+            position: relative;
+        }
+        .cart-icon:hover {
+            background-color: #6A1B9A;
+        }
+        .cart-icon::after {
+            content: attr(data-count);
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background: red;
+            border-radius: 50%;
+            color: white;
+            padding: 5px;
+            font-size: 0.8em;
+        }
+        .cart {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border: 2px solid #9C27B0;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(106, 27, 154, 0.3);
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 50px;
+            z-index: 10;
+            width: 300px;
+            height: auto;
+        }
+        .cart h2 {
+            margin-bottom: 20px;
+            color: #6A1B9A;
+        }
+        .cart ul {
+            list-style-type: none;
+            padding: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .cart ul li {
+            padding: 10px;
+            background-color: white;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .cart ul li span {
+            font-weight: bold;
+            color: #6A1B9A;
+        }
+        button.buy-now {
+            background-color: #9C27B0;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-size: 1.1em;
+            width: 100%;
+        }
+        button.buy-now:hover {
+            background-color: #6A1B9A;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Gaming Products</h1>
+
+    <div class="container">
+        <div class="product-list">
+            <!-- Product 1 -->
+            <div class="product">
+                <img src="https://via.placeholder.com/300" alt="Gaming Laptop">
+                <h3>Gaming Laptop</h3>
+                <p>Price: $1200</p>
+                <button onclick="addToCart('Gaming Laptop', 1200)">Add to Cart</button>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="product">
+                <img src="https://via.placeholder.com/300" alt="Gaming Headset">
+                <h3>Gaming Headset</h3>
+                <p>Price: $150</p>
+                <button onclick="addToCart('Gaming Headset', 150)">Add to Cart</button>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="product">
+                <img src="https://via.placeholder.com/300" alt="Gaming Chair">
+                <h3>Gaming Chair</h3>
+                <p>Price: $300</p>
+                <button onclick="addToCart('Gaming Chair', 300)">Add to Cart</button>
+            </div>
+
+            <!-- Add more products here if needed -->
+        </div>
+
+        <!-- Cart Icon and Cart Display -->
+        <div class="cart-container">
+            <div class="cart-icon" data-count="0" onclick="toggleCart()">🛒 Cart</div>
+            <div class="cart" id="cart">
+                <h2>Shopping Cart</h2>
+                <ul id="cartItems"></ul>
+                <p>Total: $<span id="totalPrice">0</span></p>
+                <button class="buy-now" onclick="buyItems()">Buy Now</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize cart from localStorage
+        let cart = JSON.parse(localStorage.getItem("cart")) || [];
+        let total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
+        function addToCart(productName, productPrice) {
+            const existingProduct = cart.find(item => item.name === productName);
+            if (existingProduct) {
+                existingProduct.quantity += 1; // Increase quantity if product already exists
+            } else {
+                cart.push({ name: productName, price: productPrice, quantity: 1 }); // Add new product
+            }
+            total += productPrice; // Update total
+            updateCart(); // Refresh the cart display
+            saveCartToLocalStorage(); // Save updated cart to localStorage
+        }
+    
+        function updateCart() {
+            const cartItems = document.getElementById("cartItems");
+            cartItems.innerHTML = ""; // Clear existing cart items
+            cart.forEach(item => {
+                const li = document.createElement("li");
+                li.innerHTML = `${item.name} - $${item.price} x ${item.quantity} <span>$${item.price * item.quantity}</span>`;
+                cartItems.appendChild(li); // Add each item to the cart display
+            });
+            document.getElementById("totalPrice").innerText = total; // Update total price
+            document.querySelector('.cart-icon').setAttribute('data-count', cart.reduce((sum, item) => sum + item.quantity, 0)); // Update cart item count
+        }
+    
+        function buyItems() {
+            alert("Items bought successfully!");
+            cart = []; // Clear the cart
+            total = 0; // Reset total
+            updateCart(); // Refresh the cart display
+            saveCartToLocalStorage(); // Save changes to localStorage
+            toggleCart(); // Close the cart after buying
+        }
+    
+        function toggleCart() {
+            const cartElement = document.getElementById("cart");
+            cartElement.style.display = (cartElement.style.display === "none" || cartElement.style.display === "") ? "block" : "none"; // Toggle cart visibility
+        }
+    
+        function saveCartToLocalStorage() {
+            localStorage.setItem("cart", JSON.stringify(cart)); // Save the cart data in localStorage
+        }
+    
+        // On page load, update cart from localStorage
+        window.onload = function() {
+            updateCart(); // Populate cart on page load
+        };
+    </script>
+
+
+</body>
+</html>
